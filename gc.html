@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Find Route between Multiple Coordinates using Google Maps Directions API</title>
+  <style>
+    #map {
+      height: 400px;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <h1>Find Route between Multiple Coordinates using Google Maps Directions API</h1>
+  <p>Enter the coordinates of the starting location and the destinations in the form "latitude, longitude" (e.g. "40.7128, -74.0060" for New York City):</p>
+  <label for="start">Start:</label>
+  <input type="text" id="start" />
+  <br />
+  <label for="destinations">Destinations:</label>
+  <textarea id="destinations"></textarea>
+  <br />
+  <button id="search-button">Find Route</button>
+  <div id="map"></div>
+  <script>
+    function initMap() {
+      // Create a new map
+      var map = new google.maps.Map(document.getElementById('map'), {
+        zoom: 8,
+        center: {lat: -34.397, lng: 150.644}
+      });
+
+      // When the search button is clicked, find the route between the start location and the destinations
+      document.getElementById('search-button').addEventListener('click', function() {
+        // Get the start location and the destinations from the form
+        var start = document.getElementById('start').value;
+        var destinations = document.getElementById('destinations').value;
+        // Split the destinations into an array of strings
+        destinations = destinations.split('\n');
+
+        // Create a new directions service
+        var directionsService = new google.maps.DirectionsService();
+
+        // Create a new directions renderer
+        var directionsRenderer = new google.maps.DirectionsRenderer({
+          map: map
+        });
+
+        // Set the start location and the destinations for the route
+        var request = {
+          origin: start,
+          destination: start,
+          waypoints: [],
+          optimizeWaypoints: true,
+          travelMode: 'DRIVING'
+        };
+        // Add each destination to the waypoints of the route
+        destinations.forEach(function(destination) {
+          request.waypoints.push({
+            location: destination,
+            stopover: true
+          });
+        });
+
+        // Find the route and display it on the map
+        directionsService.route(request, function(response, status) {
+          if (status === 'OK') {
+            directionsRenderer.setDirections(response);
+          } else {
+            alert('Directions request failed: ' + status);
+          }
+        });
+      });
+    }
+  </script>
+  <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBr5axlGblR8KvamUnXwfctQzae3NfdZZs&callback=initMap">
+  </script>
+</body>
+</html>

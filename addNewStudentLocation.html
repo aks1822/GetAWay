@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Add New Student</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+
+    <!-- Bootstrap CSS v5.2.1 -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT"
+      crossorigin="anonymous"
+    />
+    <style>
+      #map {
+        height: 400px;
+        width: 100%;
+      }
+    </style>
+  </head>
+
+  <body>
+    <header>
+      <nav
+        class="navbar navbar-expand-sm navbar-dark bg-dark shadow border-bottom border-danger border-3"
+      >
+        <div class="container">
+          <a class="navbar-brand display-2" href="#">GetAWay</a>
+          <button
+            class="navbar-toggler d-lg-none"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#collapsibleNavId"
+            aria-controls="collapsibleNavId"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+          >
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="collapsibleNavId">
+            <ul class="navbar-nav me-auto mt-2 mt-lg-0">
+              <li class="nav-item">
+                <a class="nav-link active" href="#" aria-current="page"
+                  >Home <span class="visually-hidden">(current)</span></a
+                >
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">Add Student</a>
+              </li>
+              <li class="nav-item dropdown">
+                <a
+                  class="nav-link dropdown-toggle"
+                  href="#"
+                  id="dropdownId"
+                  data-bs-toggle="dropdown"
+                  aria-haspopup="true"
+                  aria-expanded="false"
+                  >Path finder</a
+                >
+                <div
+                  class="dropdown-menu dropdown-menu-dark"
+                  aria-labelledby="dropdownId"
+                >
+                  <a class="dropdown-item" href="#">Scan</a>
+                  <a class="dropdown-item" href="#">Show Last Route</a>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+    </header>
+    <main class="bg-dark">
+      <div class="vh-100 d-flex justify-content-center align-items-center">
+        <div
+          class="d-flex flex-column h-100 justify-content-center align-item-center"
+        >
+          <div
+            class="login-container d-flex flex-column p-5 border border-danger border-1 rounded rounded-2 shadow-lg"
+          >
+            <div class="text-center display-5 text-light mb-5">
+              Enter Student Address
+            </div>
+
+            <form id="form">
+              <input
+                type="text"
+                id="address"
+                class="form-control bg-dark border-danger text-white"
+              />
+              <a id="search-button" class="btn btn-danger my-5 text-white"
+                >Search</a
+              >
+              <a
+                id="ConfirmButton"
+                class="btn btn-success my-5 text-white d-none"
+                >Confirm</a
+              >
+            </form>
+            <div id="map"></div>
+          </div>
+        </div>
+      </div>
+
+      <br />
+    </main>
+    <footer>
+      <!-- place footer here -->
+    </footer>
+    <!-- Bootstrap JavaScript Libraries -->
+    <script>
+      var LocLat = "0.00";
+      var LocLng = "0.00";
+      var confirmed = false;
+      function initMap() {
+        // Create a new map
+        var map = new google.maps.Map(document.getElementById("map"), {
+          zoom: 8,
+          center: { lat: -34.397, lng: 150.644 },
+        });
+
+        // Create a new geocoder
+        var geocoder = new google.maps.Geocoder();
+        document
+          .getElementById("ConfirmButton")
+          .addEventListener("click", function () {
+            confirmed = true;
+            if (confirmed) {
+              var queryString = window.location.search;
+              var urlParams = new URLSearchParams(queryString);
+
+              var nrl =
+                "./src/addStudentAddress.php?lat=" +
+                LocLat +
+                "&lon=" +
+                LocLng +
+                "&GenKey=1";
+              for (var param of urlParams.entries()) {
+                nrl += "&"+param[0]+"="+param[1];
+              }
+
+              window.location = nrl
+            }
+          });
+        // When the search button is clicked, geocode the address entered in the textbox
+        document
+          .getElementById("search-button")
+          .addEventListener("click", function () {
+            var address = document.getElementById("address").value;
+            geocoder.geocode({ address: address }, function (results, status) {
+              if (status === "OK") {
+                // If the geocoding was successful, place a marker on the map at the coordinates of the location
+                var marker = new google.maps.Marker({
+                  map: map,
+                  position: results[0].geometry.location,
+                });
+                // Center the map on the location
+                LocLat = results[0].geometry.location.lat();
+                LocLng = results[0].geometry.location.lng();
+                map.setCenter(results[0].geometry.location);
+                document
+                  .getElementById("ConfirmButton")
+                  .classList.remove("d-none");
+              } else {
+                // If the geocoding was not successful, display an error message
+                alert("Geocoding was not successful: " + status);
+              }
+            });
+          });
+      }
+    </script>
+    <script
+      async
+      defer
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBr5axlGblR8KvamUnXwfctQzae3NfdZZs&callback=initMap"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"
+      integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3"
+      crossorigin="anonymous"
+    ></script>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.min.js"
+      integrity="sha384-7VPbUDkoPSGFnVtYi0QogXtr74QeVeeIs99Qfg5YCF+TidwNdjvaKZX19NZ/e6oz"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>

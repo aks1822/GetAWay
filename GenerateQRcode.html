@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Home</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+
+    <!-- Bootstrap CSS v5.2.1 -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT"
+      crossorigin="anonymous"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+    <script>
+        var ID=0000;
+    </script>
+  </head>
+
+  <body onload="generateQRCode()">
+    <header>
+      <nav
+        class="navbar navbar-expand-sm navbar-dark bg-dark shadow border-bottom border-danger border-3"
+      >
+        <div class="container">
+          <a class="navbar-brand display-2" href="#">GetAWay</a>
+          <button
+            class="navbar-toggler d-lg-none"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#collapsibleNavId"
+            aria-controls="collapsibleNavId"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+          >
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="collapsibleNavId">
+            <ul class="navbar-nav me-auto mt-2 mt-lg-0">
+              <li class="nav-item">
+                <a class="nav-link active" href="#" aria-current="page"
+                  >Home <span class="visually-hidden">(current)</span></a
+                >
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="addNewStudent.html">Add Student</a>
+              </li>
+              <li class="nav-item dropdown">
+                <a
+                  class="nav-link dropdown-toggle"
+                  href="#"
+                  id="dropdownId"
+                  data-bs-toggle="dropdown"
+                  aria-haspopup="true"
+                  aria-expanded="false"
+                  >Path finder</a
+                >
+                <div
+                  class="dropdown-menu dropdown-menu-dark"
+                  aria-labelledby="dropdownId"
+                >
+                  <a class="dropdown-item" href="#">Scan</a>
+                  <a class="dropdown-item" href="#">Show Last Route</a>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+    </header>
+    <main class="bg-dark">
+      <div class="vh-100 d-flex justify-content-center align-items-center">
+        <div
+          class="d-flex flex-column h-100 justify-content-center align-item-center"
+        >
+          <div
+            class="login-container d-flex flex-column align-items-center p-5 border border-danger border-1 rounded rounded-2 shadow-lg"
+          >
+            <div class="display-6 text-center text-white">
+              Generated QR Code
+            </div>
+            <div id="qrcode" class="m-5"></div>
+            <button type="button" class="btn btn-outline-danger"onclick="downloadImage()">
+              Download Image
+            </button>
+
+            <a href="./home.html" class="btn btn-danger my-3">Return Home</a>
+            <script>
+              function downloadImage() {
+                // Get the image element
+                var imageElement = document.getElementById("qrcode");
+
+                var childElements = imageElement.children;
+
+                // Loop through the child elements and log their contents
+                for (var i = 0; i < childElements.length; i++) {
+                  var linkElement = document.createElement("a");
+
+                  // Set the link element's href to the image's src
+                  linkElement.href = childElements[i].src;
+
+                  // Set the link element's download attribute to the image's filename
+                  linkElement.download = ID+"_QR.jpg";
+
+                  // Append the link element to the body
+                  document.body.appendChild(linkElement);
+
+                  // Simulate a click on the link element to trigger the download
+                  linkElement.click();
+
+                  // Remove the link element
+                  document.body.removeChild(linkElement);
+                }
+
+                // Create a link element
+              }
+            </script>
+          </div>
+        </div>
+      </div>
+    </main>
+    <footer>
+      <!-- place footer here -->
+    </footer>
+    <!-- Bootstrap JavaScript Libraries -->
+
+    <script>
+      function generateQRCode() {
+        var f = false;
+        var text = "000000";
+        var queryString = window.location.search;
+        var urlParams = new URLSearchParams(queryString);
+        for (var param of urlParams.entries()) {
+          if (param[0] == "sid") {
+            text = param[1];
+            ID = text;
+            f = true;
+            break;
+          }
+        }
+        if (!f) {
+          return;
+        }
+
+        var qr = qrcode(0, "M");
+
+        // Set the text to be encoded and the error correction level
+        qr.addData(text);
+        qr.make();
+
+        // Get the QR code as an HTML element and add it to the page
+        var qrCode = qr.createImgTag(4);
+        document.getElementById("qrcode").innerHTML = qrCode;
+      }
+    </script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"
+      integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3"
+      crossorigin="anonymous"
+    ></script>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.min.js"
+      integrity="sha384-7VPbUDkoPSGFnVtYi0QogXtr74QeVeeIs99Qfg5YCF+TidwNdjvaKZX19NZ/e6oz"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>

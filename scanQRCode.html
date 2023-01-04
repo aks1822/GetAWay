@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Home</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+
+    <!-- Bootstrap CSS v5.2.1 -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT"
+      crossorigin="anonymous"
+    />
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBr5axlGblR8KvamUnXwfctQzae3NfdZZs"></script>
+  </head>
+
+  <body>
+    <header>
+      <nav
+        class="navbar navbar-expand-sm navbar-dark bg-dark shadow border-bottom border-danger border-3"
+      >
+        <div class="container">
+          <a class="navbar-brand display-2" href="./">GetAWay</a>
+          <button
+            class="navbar-toggler d-lg-none"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#collapsibleNavId"
+            aria-controls="collapsibleNavId"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+          >
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="collapsibleNavId">
+            <ul class="navbar-nav me-auto mt-2 mt-lg-0">
+              <li class="nav-item">
+                <a class="nav-link active" href="#" aria-current="page"
+                  >Home <span class="visually-hidden">(current)</span></a
+                >
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="addNewStudent.html">Add Student</a>
+              </li>
+              <li class="nav-item dropdown">
+                <a
+                  class="nav-link dropdown-toggle"
+                  href="#"
+                  id="dropdownId"
+                  data-bs-toggle="dropdown"
+                  aria-haspopup="true"
+                  aria-expanded="false"
+                  >Path finder</a
+                >
+                <div
+                  class="dropdown-menu dropdown-menu-dark"
+                  aria-labelledby="dropdownId"
+                >
+                  <a class="dropdown-item" href="#">Scan</a>
+                  <a class="dropdown-item" href="#">Show Last Route</a>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+    </header>
+    <main class="bg-dark">
+      <div class="min-vh-100 d-flex justify-content-center align-items-center" style="min-width: 100%;">
+        <div
+          class="d-flex flex-column h-100 justify-content-center align-item-center" style="min-width: 100%;"
+        >
+          <div
+            class="login-container d-flex flex-column p-3 border border-danger border-1 rounded rounded-2 shadow-lg" style="min-width: 100%;"
+          >
+            <script src="src/QR.JS"></script>
+            <div style="width: 100%" id="reader"></div>
+            <div class="final-cal">
+              <table id="table" class="table table-dark">
+                <tr>
+                  <th>S/No</th>
+                  <th>ID</th>
+                  <th>active</th>
+                </tr>
+              </table>
+              <div class="text-white d-none" id="dbw"></div>
+              <div id="map" style="width: 100%; height: 400px"></div>
+            </div>
+            <script>
+              // Initialize the map and the directions service
+
+              
+              var map = new google.maps.Map(document.getElementById("map"), {
+                zoom: 7,
+                center: { lat: 25.1234558, lng: 55.419299 },
+              });
+              var directionsService = new google.maps.DirectionsService();
+
+              // Define the function that will be called when the route has been calculated
+              function displayRoute(response) {
+                var directionsRenderer = new google.maps.DirectionsRenderer({
+                  map: map,
+                });
+                directionsRenderer.setDirections(response);
+              }
+
+              // Calculate the route between the points
+              directionsService.route(
+                {
+                  origin: "Amity University Dubai",
+                  destination: "Amity University Dubai",
+                  waypoints: [],
+                  travelMode: "DRIVING",
+                },
+                displayRoute
+              );
+
+             
+            </script>
+            <script>
+
+              const mySet = new Set();
+              const locations = new Object();
+              const table = document.getElementById("table");
+              const debugw = document.getElementById('dbw');
+              var fnd = false;
+              var sn = 0;
+              var html5QrcodeScanner = new Html5QrcodeScanner("reader", {
+                fps: 10,
+                qrbox: 250,
+              });
+              async function AddWayPoint(element){
+                var xhr = new XMLHttpRequest();
+                var url = "./api/rc.php?id="+element;
+                xhr.open("GET", url);
+                xhr.send();
+                xhr.onload = function () {
+                  
+                  var data = JSON.parse(xhr.responseText);
+                  if (data.exists){
+                    var locchain = data.result.lat + ", " + data.result.lon; // "54.55,22.33"
+                    if (locations.hasOwnProperty(data.result.id)){
+                      return;
+                    }
+                    else {
+                      locations[data.result.id] = locchain;
+                    }
+                    var request = { 
+                      origin: "Amity University Dubai",
+                      destination: "Amity University Dubai",
+                      waypoints: [],
+                      optimizeWaypoints: true,
+                      travelMode: 'DRIVING' 
+                    };
+                    for (const key in locations) {
+                      request.waypoints.push({
+                        location: locations[key],
+                        stopover: true
+                      });
+                    }
+
+                    directionsService.route(request,displayRoute);
+                  }
+                }// Check the value of the "exists" property
+                 
+
+              }
+              async function UpdateCellMain(element){
+                var output = "";
+                sn+=1;
+                const row = table.insertRow();
+                const cell1 = row.insertCell();
+                const cell2 = row.insertCell();
+                const cell3 = row.insertCell();
+                console.log("nwe");
+                cell3.id = "c_"+element+"_marker";
+                cell1.innerHTML = sn;
+                cell2.innerHTML = element;
+                var xhr = new XMLHttpRequest();
+                var url = "./api/checkid.php?id="+element;
+                console.log("nwU");
+                xhr.open("GET", url);
+                xhr.send();
+                xhr.onload = function () {
+                  // Parse the response as JSON
+                  var data = JSON.parse(xhr.responseText);
+                  debugw.innerHTML += "Hit Success " +JSON.stringify(data)+ " </br>";
+                  // Check the value of the "exists" property
+                  if (data.exists){
+                    UpdateCell("c_"+data.reqid+"_marker", true);
+                    debugw.innerHTML += "Data: True </br> </br>"
+                    output = JSON.stringify(data);
+                    AddWayPoint(data.reqid);
+                  } else {
+                    UpdateCell("c_"+data.reqid+"_marker", false);
+                  }
+                };
+
+              }
+              html5QrcodeScanner.render(onScanSuccess);
+              function UpdateCell(id,tf){
+                var cell = document.getElementById(id);
+                cell.innerHTML = tf ? '<svg width="20px" height="20px" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#000000" stroke-width="0">&lt;#00a814 id="SVGRepo_b#00a814Carrier" stroke-width="0"&gt;<!--#00a814-->&lt;#00a814 id="SVGRepo_iconCarrier"&gt; <path fill-rule="evenodd" clip-rule="evenodd" d="M0 7.5C0 3.35786 3.35786 0 7.5 0C11.6421 0 15 3.35786 15 7.5C15 11.6421 11.6421 15 7.5 15C3.35786 15 0 11.6421 0 7.5ZM7.0718 10.7106L11.3905 5.31232L10.6096 4.68762L6.92825 9.2893L4.32012 7.11586L3.67993 7.88408L7.0718 10.7106Z" fill="#00a814"></path> <!--#00a814--></svg>' : '<svg width="20px" height="20px" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--emojione" preserveAspectRatio="xMidYMid meet" fill="#000000" stroke="#000000" stroke-width="0"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_iconCarrier"><path fill="#ff5a79" d="M62 10.6L53.4 2L32 23.4L10.6 2L2 10.6L23.4 32L2 53.4l8.6 8.6L32 40.6L53.4 62l8.6-8.6L40.6 32z"></path></g></svg>';
+              }
+              function onScanSuccess(decodedText, decodedResult) {
+                // Handle on s
+                
+                console.log(`Scan result: ${decodedText}`, decodedResult);
+                if (mySet.has(decodedText)){
+                  console.log("nws");
+                  return;
+                }
+                UpdateCellMain(decodedText);
+                mySet.add(decodedText);
+                console.log("nwr");
+
+              }
+
+              function onScanError(errorMessage) {
+                // handle on error condition, with error message
+              }
+            </script>
+          </div>
+        </div>
+      </div>
+    </main>
+    <footer>
+      <!-- place footer here -->
+    </footer>
+    <!-- Bootstrap JavaScript Libraries -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"
+      integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3"
+      crossorigin="anonymous"
+    ></script>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.min.js"
+      integrity="sha384-7VPbUDkoPSGFnVtYi0QogXtr74QeVeeIs99Qfg5YCF+TidwNdjvaKZX19NZ/e6oz"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>
